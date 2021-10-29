@@ -1,13 +1,13 @@
 const express = require("express");
 const morgan = require("morgan");
 const mongoose = require("mongoose");
+require("dotenv").config();
+
 const app = express();
 const { authenticate } = require("./middleware/authentication");
 const productRoutes = require("./api/products/product");
 const userRoutes = require("./api/user/user");
-mongoose.connect(
-  "mongodb+srv://nimrah:nimrah@cluster0.d29h7.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-);
+mongoose.connect(process.env.MONGO_DB);
 app.use(express.json());
 app.use(morgan("dev"));
 
