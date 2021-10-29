@@ -1,21 +1,21 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const {
-  GET_PRODUCT,
-  POST_PRODUCT,
-  GET_PRODUCT_BY_ID,
-  DELETE_PRODUCT,
-  UPDATE_PRODUCT,
+  getProduct,
+  postProduct,
+  getProductByID,
+  deleteProduct,
+  updateProduct,
 } = require("../../controller/product");
 
 const Product = require("../../models/product");
 
 const router = express.Router();
 
-router.get("/", GET_PRODUCT);
-router.post("/", POST_PRODUCT);
-router.get("/:id", GET_PRODUCT_BY_ID);
-router.delete("/:id", DELETE_PRODUCT);
-router.patch("/:id", UPDATE_PRODUCT);
+router.get("/", getProduct);
+router.post("/", postProduct);
+router.get("/:id", getProductByID);
+router.delete("/:id", deleteProduct);
+router.patch("/:id", updateProduct);
 
 module.exports = router;

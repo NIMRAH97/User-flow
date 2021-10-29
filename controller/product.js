@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Product = require("../models/product");
 
-const GET_PRODUCT = async (req, res) => {
+const getProduct = async (req, res) => {
   const product = await Product.find().select("name price _id");
   if (product) {
     const response = {
@@ -26,7 +26,7 @@ const GET_PRODUCT = async (req, res) => {
   }
 };
 
-const GET_PRODUCT_BY_ID = async (req, res) => {
+const getProductByID = async (req, res) => {
   const { id } = req.params;
 
   const product = await Product.findById(id);
@@ -43,7 +43,7 @@ const GET_PRODUCT_BY_ID = async (req, res) => {
   }
 };
 
-const POST_PRODUCT = async (req, res) => {
+const postProduct = async (req, res) => {
   const product = new Product({
     _id: new mongoose.Types.ObjectId(),
     name: req.body.name,
@@ -59,7 +59,7 @@ const POST_PRODUCT = async (req, res) => {
   }
 };
 
-const DELETE_PRODUCT = async (req, res) => {
+const deleteProduct = async (req, res) => {
   const { id } = req.params;
   const product = await Product.findByIdAndDelete(id);
   if (product) {
@@ -73,7 +73,7 @@ const DELETE_PRODUCT = async (req, res) => {
   }
 };
 
-const UPDATE_PRODUCT = async (req, res) => {
+const updateProduct = async (req, res) => {
   const { id } = req.params;
   const props = req.body;
   const product = await Product.findByIdAndUpdate(id, props, { new: true });
@@ -87,9 +87,9 @@ const UPDATE_PRODUCT = async (req, res) => {
 };
 
 module.exports = {
-  GET_PRODUCT,
-  POST_PRODUCT,
-  DELETE_PRODUCT,
-  UPDATE_PRODUCT,
-  GET_PRODUCT_BY_ID,
+  getProduct,
+  postProduct,
+  deleteProduct,
+  updateProduct,
+  getProductByID,
 };
