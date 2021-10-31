@@ -12,23 +12,22 @@ const postSignUp = async (req, res) => {
     return res.status(409).json({
       message: "Already registered",
     });
-  } else {
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const user = new User({
-      _id: new mongoose.Types.ObjectId(),
-      username: req.body.username,
-      password: hash,
-    });
-    const createdUser = await user.save();
-    if (!createdUser) {
-      return res.status(500).json({
-        message: "User not created",
-      });
-    }
-    return res.status(201).json({
-      message: "User Created",
+  }
+  const hash = await bcrypt.hash(req.body.password, 10);
+  const user = new User({
+    _id: new mongoose.Types.ObjectId(),
+    username: req.body.username,
+    password: hash,
+  });
+  const createdUser = await user.save();
+  if (!createdUser) {
+    return res.status(500).json({
+      message: "User not created",
     });
   }
+  return res.status(201).json({
+    message: "User Created",
+  });
 };
 
 const postLogin = async (req, res) => {
@@ -38,33 +37,32 @@ const postLogin = async (req, res) => {
     return res.status(401).json({
       message: "Auth failed",
     });
-  } else {
-    const compare = await bcrypt.compare(req.body.password, user.password);
+  }
+  const compare = await bcrypt.compare(req.body.password, user.password);
 
-    if (compare) {
-      const token = jwt.sign(
-        {
-          username: user.username,
-          userId: user._id,
-        },
-        process.env.JWT_KEY,
-        {
-          expiresIn: "2h",
-        }
-      );
-      return res.status(200).json({
-        message: "Success",
-        token: token,
-      });
-    }
-    return res.status(401).json({
-      message: "Auth failed",
+  if (compare) {
+    const token = jwt.sign(
+      {
+        username: user.username,
+        userId: user._id,
+      },
+      process.env.JWT_KEY,
+      {
+        expiresIn: "2h",
+      }
+    );
+    return res.status(200).json({
+      message: "Success",
+      token,
     });
   }
+  return res.status(401).json({
+    message: "Auth failed",
+  });
 };
 
 const deleteUser = async (req, res) => {
-  const { id } = req.params; //destructuring
+  const { id } = req.params; // destructuring
   const removeUser = await User.findByIdAndDelete(id);
   if (removeUser) {
     return res.status(200).json({
@@ -92,13 +90,6 @@ const changePassword = async (req, res) => {
     }
     const hashPass = await bcrypt.hash(newPassword, 10);
     if (hashPass) {
-      const updatedPassword = await User.findByIdAndUpdate(
-        req.user._id,
-        { password: hashPass },
-        {
-          new: true,
-        }
-      );
       return res.status(200).json({
         message: "Password updated successfully",
       });
@@ -115,9 +106,9 @@ const changePassword = async (req, res) => {
 };
 
 const resetPasswordCode = async (req, res) => {
-  let otp = otpGenerator();
+  const otp = otpGenerator();
 
-  const username = req.body.username;
+  const { username } = req.body;
   const user = await User.findOne({ username });
   if (user) {
     await User.findByIdAndUpdate(user._id, { otp });
@@ -164,6 +155,7 @@ const resetPassword = async (req, res) => {
         message: "Password reset",
       });
     }
+    return {};
   } catch (e) {
     console.log(e);
     return res.status(401).json({

@@ -6,17 +6,15 @@ const getProduct = async (req, res) => {
   if (product) {
     const response = {
       count: product.length,
-      product: product.map((product) => {
-        return {
-          name: product.name,
-          price: product.price,
-          _id: product._id,
-          request: {
-            type: "GET",
-            url: "http://localhost:3001/product/" + product._id,
-          },
-        };
-      }),
+      product: product.map((pro) => ({
+        name: pro.name,
+        price: pro.price,
+        _id: pro._id,
+        request: {
+          type: "GET",
+          url: `http://localhost:3001/product/${pro._id}`,
+        },
+      })),
     };
     res.status(200).json(response);
   } else {
@@ -33,7 +31,7 @@ const getProductByID = async (req, res) => {
   if (product) {
     const response = {
       count: product.length,
-      product: product,
+      product,
     };
     res.status(200).json(response);
   } else {

@@ -3,15 +3,16 @@ require("dotenv").config();
 const User = require("../models/user");
 
 const authenticate = async (req, res, next) => {
-  const { authorization } = req.headers;
-  if (!authorization) {
-    return res.status(401).send({
-      status: "error",
-      message: "Token must be present",
-    });
-  }
-  const token = authorization.replace("Bearer ", "");
   try {
+    const { authorization } = req.headers;
+    if (!authorization) {
+      return res.status(401).send({
+        status: "error",
+        message: "Token must be present",
+      });
+    }
+
+    const token = authorization.replace("Bearer ", "");
     const usr = await jwt.verify(token, process.env.JWT_KEY);
     const user = await User.findById(usr.userId).lean();
     if (user === null) {

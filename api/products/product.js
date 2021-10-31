@@ -1,5 +1,4 @@
 const express = require("express");
-const mongoose = require("mongoose");
 const {
   getProduct,
   postProduct,
@@ -7,8 +6,6 @@ const {
   deleteProduct,
   updateProduct,
 } = require("../../controller/product");
-
-const Product = require("../../models/product");
 
 const router = express.Router();
 
