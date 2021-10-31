@@ -4,6 +4,7 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
 const { sendEmail } = require("../utils/sendGrid");
+const { otpGenerator } = require("../utils/helper");
 
 const postSignUp = async (req, res) => {
   const findUser = await User.find({ username: req.body.username });
@@ -13,7 +14,6 @@ const postSignUp = async (req, res) => {
     });
   } else {
     const hash = await bcrypt.hash(req.body.password, 10);
-    console.log(hash);
     const user = new User({
       _id: new mongoose.Types.ObjectId(),
       username: req.body.username,
@@ -34,15 +34,12 @@ const postSignUp = async (req, res) => {
 const postLogin = async (req, res) => {
   const user = await User.findOne({ username: req.body.username });
 
-  console.log(user);
   if (user.length < 1) {
     return res.status(401).json({
       message: "Auth failed",
     });
   } else {
     const compare = await bcrypt.compare(req.body.password, user.password);
-    console.log(compare);
-    console.log(user);
 
     if (compare) {
       const token = jwt.sign(
@@ -79,16 +76,12 @@ const deleteUser = async (req, res) => {
   });
 };
 
-//to change password we need old password and new password .. check old password(compare)and we will save it in the db
-
-//old password + new password
 const changePassword = async (req, res) => {
   try {
     const {
       body: { oldPassword, newPassword },
     } = req;
-    //req.user.password ko oldPassword sy compare krna hai just like login
-    //agar yh compare ho jaye tu new password ko hash krna ho ga or usko db mai store karana ho ga
+
     const userOldPassword = req.user.password;
 
     const compare = await bcrypt.compare(oldPassword, userOldPassword);
@@ -98,8 +91,6 @@ const changePassword = async (req, res) => {
       });
     }
     const hashPass = await bcrypt.hash(newPassword, 10);
-    // console.log("hash", hash);
-    console.log(req.user._id);
     if (hashPass) {
       const updatedPassword = await User.findByIdAndUpdate(
         req.user._id,
@@ -108,7 +99,6 @@ const changePassword = async (req, res) => {
           new: true,
         }
       );
-      console.log("updtaes", req.user.password);
       return res.status(200).json({
         message: "Password updated successfully",
       });
@@ -125,18 +115,13 @@ const changePassword = async (req, res) => {
 };
 
 const resetPasswordCode = async (req, res) => {
-  let otp = Math.random() * 1000000;
+  let otp = otpGenerator();
 
-  otp = parseInt(otp).toString();
-  console.log(otp);
   const username = req.body.username;
   const user = await User.findOne({ username });
   if (user) {
     await User.findByIdAndUpdate(user._id, { otp });
-    await sendEmail(
-      "Password reset OTP",
-      `Your OTP for password change is ${otp}`
-    );
+    await sendEmail("Password reset OTP", otp, "otp");
     return res.status(200).json({
       message: "otp successfully generated",
     });
@@ -169,7 +154,6 @@ const resetPassword = async (req, res) => {
       });
     }
     const hashPass = await bcrypt.hash(newPassword, 10);
-    console.log(user._id);
     const updatedPassword = await User.findByIdAndUpdate(
       user._id,
       { password: hashPass, otp: "" },
@@ -186,50 +170,6 @@ const resetPassword = async (req, res) => {
       message: "something went wrong",
     });
   }
-
-  //!Hardcoded
-  // var code = Math.random()
-  // code = code * 1000000
-  //   try {
-  //     const {
-  //       body: { newPassword },
-  //     } = req;
-  //     // const user = await User.findOneAndUpdate(
-  //     //   { username: req.body.username },
-  //     //   { otp: req.body.otp }
-  //     // );
-  //     const user = await User.findOne({
-  //       username: "admin@admin.com",
-  //       otp: "12345",
-  //     });
-  //     if (!user) {
-  //       // if (req.body.otp == req.user.otp) {
-  //       return res.status(401).json({
-  //         message: "Password reset was unsuccesful",
-  //       });
-  //     }
-  //     console.log(user.otp);
-  //     const hashPass = await bcrypt.hash(newPassword, 10);
-  //     //   const updatedPassword = await User.findOneAndUpdate(
-  //     //     user.username,
-  //     //     { password: hashPass },
-  //     //     {
-  //     //       new: true,
-  //     //     }
-  //     //   );
-  //     user.password = hashPass;
-  //     const updatedPassword = await user.save();
-  //     if (updatedPassword) {
-  //       return res.status(200).json({
-  //         message: "Password reset",
-  //       });
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //     return res.status(401).json({
-  //       message: "something went wrong",
-  //     });
-  //   }
 };
 
 module.exports = {

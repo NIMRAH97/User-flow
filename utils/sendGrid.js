@@ -3,16 +3,19 @@ require("dotenv").config();
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (subject, text) => {
+const sendEmail = async (subject, value, type) => {
+  let html;
+  if (type === "otp") {
+    html = `<h2>Your OTP for password change is: <span style="color:blue">${value}</span></h2>`;
+  }
   const msg = {
-    to: "nimrah.yousuf@10pearls.com",
-    from: "nimrah.yousuf@10pearls.com", // Use the email address or domain you verified above
+    to: process.env.TO_EMAIL,
+    from: process.env.FROM_EMAIL,
     subject,
-    text,
-    // html: "<strong>and easy to do anywhere, even with Node.js</strong>",
+    // text,
+    html,
   };
 
-  //ES8
   (async () => {
     try {
       await sgMail.send(msg);
