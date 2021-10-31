@@ -7,7 +7,9 @@ const app = express();
 const { authenticate } = require("./middleware/authentication");
 const productRoutes = require("./api/products/product");
 const userRoutes = require("./api/user/user");
-mongoose.connect(process.env.MONGO_DB);
+mongoose.connect(process.env.MONGO_DB, () => {
+  console.log("Mongo DB connected");
+});
 app.use(express.json());
 app.use(morgan("dev"));
 
