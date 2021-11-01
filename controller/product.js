@@ -1,11 +1,27 @@
+/* eslint-disable radix */
 const mongoose = require("mongoose");
 const Product = require("../models/product");
 
 const getProduct = async (req, res) => {
-  const product = await Product.find().select("name price _id");
+  const { page, size } = req.query;
+  const offset = page && size ? (page - 1) * size : 0;
+  let next = false;
+  const nextCheck = page * size || 0;
+  const totalCount = await Product.count();
+  if (nextCheck < totalCount) {
+    next = true;
+  }
+
+  const product = await Product.find()
+    .limit(parseInt(size) || 5)
+    .skip(parseInt(offset))
+    .sort("-createdAt")
+    .select("name price _id");
+
   if (product) {
     const response = {
-      count: product.length,
+      count: totalCount,
+      next,
       product: product.map((pro) => ({
         name: pro.name,
         price: pro.price,
