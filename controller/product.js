@@ -1,6 +1,11 @@
+/* eslint-disable prefer-destructuring */
+/* eslint-disable no-shadow */
 /* eslint-disable radix */
 const mongoose = require("mongoose");
+
+const product = require("../models/product");
 const Product = require("../models/product");
+const ProductPurchase = require("../models/productPurchase");
 
 const getProduct = async (req, res) => {
   const { page, size } = req.query;
@@ -21,6 +26,7 @@ const getProduct = async (req, res) => {
   if (product) {
     const response = {
       count: totalCount,
+      currentPage: page,
       next,
       product: product.map((pro) => ({
         name: pro.name,
@@ -100,10 +106,63 @@ const updateProduct = async (req, res) => {
   }
 };
 
+const postProductPurchase = async (req, res) => {
+  const prodID = req.body.prodID; // loop
+  const quantity = req.body.quantity;
+  const promises = []; // array
+
+  prodID.forEach((el) => {
+    const productPurchase = new ProductPurchase({
+      userID: req.user._id,
+      productID: el,
+      quantity,
+    });
+
+    promises.push(productPurchase.save());
+  });
+  const result = await Promise.all(promises);
+
+  console.log(result);
+  if (!result) {
+    return res.status(403).json({
+      message: "Something went wrong while fetching product history",
+    });
+  }
+  return res.status(200).json(result);
+  // const product = await Product.findById(prodID);
+  // const prodArray = userProducts.push(product)
+
+  // prodArray.forEach(product => {
+  //   const productPurchase = new ProductPurchase({
+  //     userID: req.user._id,
+  //     productID: prodID,
+  //     quantity,
+  //   });
+  //     userProducts.push(productPurchase.save()); // no await and push to array
+  // );
+  // // prodID.forEach(() => {
+  // //   userProducts.push(Product.findById(prodID));
+  // // });
+  // // const p = Promise.all(userProducts);
+  // // do this in loop
+  // // if (product) {
+  // //   const productPurchase = new ProductPurchase({
+  // //     userID: req.user._id,
+  // //     productID: prodID,
+  // //     quantity,
+  // //   });
+  // //   await productPurchase.save(); // no await and push to array
+  //   return res.status(201).json(productPurchase);
+  // }
+  // return res.status(404).json({
+  //   message: "Something went wrong",
+  // });
+};
 module.exports = {
   getProduct,
   postProduct,
   deleteProduct,
   updateProduct,
   getProductByID,
+  postProductPurchase,
 };
