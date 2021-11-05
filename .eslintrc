@@ -16,6 +16,7 @@
     "no-underscore-dangle": "off",
     "consistent-return": "warn",
     "no-unused-vars": "warn",
-    "radix": "off"
+    "radix": "off",
+    "no-shadow": "off"
   }
 }

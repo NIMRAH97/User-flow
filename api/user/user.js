@@ -17,7 +17,6 @@ router.post("/signup", postSignUp);
 router.post("/login", postLogin);
 router.delete("/:id", deleteUser);
 router.patch("/reset", resetPassword);
-// change password
 router.patch("/reset-code", resetPasswordCode);
 router.patch("/update", authenticate, changePassword);
 
