@@ -31,6 +31,7 @@ const postSignUp = async (req, res) => {
 };
 
 const postLogin = async (req, res) => {
+  try{
   const user = await User.findOne({ username: req.body.username });
 
   if (user.length < 1) {
@@ -56,9 +57,15 @@ const postLogin = async (req, res) => {
       token,
     });
   }
+    return res.status(401).json({
+      message: "Password not matched",
+    });
+  }
+  catch(e){
   return res.status(401).json({
     message: "Auth failed",
   });
+  }
 };
 
 const deleteUser = async (req, res) => {
@@ -106,6 +113,7 @@ const changePassword = async (req, res) => {
 };
 
 const resetPasswordCode = async (req, res) => {
+  try{
   const otp = otpGenerator();
 
   const { username } = req.body;
@@ -117,9 +125,11 @@ const resetPasswordCode = async (req, res) => {
       message: "otp successfully generated",
     });
   }
+  }catch(e){
   return res.status(401).json({
     message: "something went wrong",
   });
+  }
 };
 
 const resetPassword = async (req, res) => {
